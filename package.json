@@ -1,0 +1,29 @@
+{
+  "name": "deceuvel-api",
+  "version": "1.0.0",
+  "description": "GraphQL API for De Ceuvel data",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./app.js localhost 8080"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SovereignNature/deceuvel-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SovereignNature/deceuvel-api/issues"
+  },
+  "homepage": "https://github.com/SovereignNature/deceuvel-api#readme",
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "cors": "^2.8.5",
+    "dotenv": "^14.3.2",
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
