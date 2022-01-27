@@ -1,0 +1,16 @@
+type Query { 
+   soilSamples:[SoilSample]
+}
+
+type SoilSample {
+   time:String
+   location:String
+   sample:String
+   Cu:Number
+   Ni:Number
+   Pb:Number
+   Zn:Number
+   Cr:Number
+   Fe:Number
+   Mn:Number
+}
