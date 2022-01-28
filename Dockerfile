@@ -1,0 +1,15 @@
+FROM node:latest
+
+WORKDIR /deceuvel-api
+
+COPY package.json ./
+RUN npm install
+
+COPY app.js ./
+COPY ./data ./data/
+COPY ./graphql ./graphql/
+COPY ./models ./models/
+
+EXPOSE ${APP_PORT}
+
+CMD node app.js

@@ -1,16 +1,15 @@
-type Query { 
-   soilSamples:[SoilSample]
+type SoilSample {
+   year:String
+   location:String
+   Cu:Float
+   Ni:Float
+   Pb:Float
+   Zn:Float
+   Cr:Float
+   Fe:Float
+   Mn:Float
 }
 
-type SoilSample {
-   time:String
-   location:String
-   sample:String
-   Cu:Number
-   Ni:Number
-   Pb:Number
-   Zn:Number
-   Cr:Number
-   Fe:Number
-   Mn:Number
+type Query {
+   samples: [SoilSample!]!
 }

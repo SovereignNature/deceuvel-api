@@ -1,18 +1,32 @@
 version: "3.8" # specify docker-compose version
 
 services:
-  database:
-    image: mongo:4.0.3
-    container_name: mongodb
-    restart: always
-    ports:
-      - "${MONGO_DATABASE_PORT}:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
-    volumes:
-      - ./mongo:/home/mongodb
-      - ./mongo/docker/:/docker-entrypoint-initdb.d/
-      - ./mongo/db:/data/db
+    db:
+        image: mongo:4.0.3
+        container_name: mongodb
+        restart: always
+        ports:
+            - "${MONGO_DATABASE_PORT}:27017"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+            MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+        volumes:
+          #- ./mongo:/home/mongodb
+          - ./mongo/docker/:/docker-entrypoint-initdb.d/
+          #- ./mongo/db:/data/db
 
+    api:
+        build: .
+        container_name: api
+        ports:
+            - "${APP_PORT}:${APP_PORT}"
+        environment:
+            APP_PORT: ${APP_PORT}
+            MONGO_DATABASE_PORT: ${MONGO_DATABASE_PORT}
+            MONGO_DATABASE_HOST: db
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+            MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+        depends_on:
+            - "db"
