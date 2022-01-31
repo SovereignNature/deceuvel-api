@@ -10,6 +10,26 @@ type SoilSample {
    Mn:Float
 }
 
+type AirSample {
+    time:String
+    number:Float
+    airpressure:Float
+    humidity:Float
+    temperature:Float
+    winddirection:Float
+    windspeed:Float
+    CO:Float
+    CO2:Float
+    NH3:Float
+    NO:Float
+    NO2:Float
+    O3:Float
+    PM10:Float
+    "PM2.5":Float
+    SO2:Float
+}
+
 type Query {
-   samples: [SoilSample!]!
+   soil_samples: [SoilSample!]!
+   air_samples: [AirSample!]!
 }

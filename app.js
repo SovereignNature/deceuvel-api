@@ -10,6 +10,8 @@ const csv = require('csv-parser');
 const fs = require('fs');
 
 const Soil = require('./models/SoilSample.js');
+const Air = require('./models/AirSample.js');
+
 
 require('dotenv').config();
 
@@ -36,14 +38,14 @@ app.use(cors());
 app.use('/graphql', graphql_http); // graphql endpoint
 app.get('/', (req, res) => res.send('Hello!') ); // root endpoint
 
-app.get('/samples', async (req, res) => {
+/*app.get('/samples', async (req, res) => {
     var samples = await Soil.find();
     res.send(samples);
-} ); // rest endpoint
+} );*/ // rest endpoint
 
 
 // Insert data on the database on start if needed
-async function fillDB() {
+async function fillSoilData() {
     const samples = await Soil.find();
 
     if(samples.length == 0) {
@@ -129,7 +131,7 @@ async function fillDB() {
                 n_lines++;
             };
 
-            fs.createReadStream('./data/full_data.csv')
+            fs.createReadStream('./data/full_soil_data.csv')
                 .pipe(csv())
                 .on('data', (raw_row) => {
                     row = convertRow(raw_row);
@@ -158,10 +160,46 @@ async function fillDB() {
         } );
 
         var n_lines = await p1;
-        console.log(`Filled DB with ${n_lines} entries.`);
+        console.log(`Filled DB with ${n_lines} soil entries.`);
     } else {
-        console.log("DB already filled.");
+        console.log("DB already filled with soil data.");
     }
+}
+
+async function fillAirData() {
+    const samples = await Air.find();
+
+    if(samples.length == 0) {
+
+        var p1 = new Promise( (resolve, reject) => {
+            var n_lines = 0;
+
+            const insertRow = (row) => {
+                const doc = Air.create(row);
+
+                n_lines++;
+            };
+
+            fs.createReadStream('./data/air_data.csv')
+                .pipe(csv())
+                .on('data', (row) => {
+                    insertRow(row);
+                })
+                .on('end', () => {
+                    resolve(n_lines);
+                });
+        } );
+
+        var n_lines = await p1;
+        console.log(`Filled DB with ${n_lines} air entries.`);
+    } else {
+        console.log("DB already filled with air data.");
+    }
+}
+
+async function fillDB() {
+    fillSoilData();
+    fillAirData();
 }
 
 async function main() {
