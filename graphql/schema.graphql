@@ -1,5 +1,5 @@
 type SoilSample {
-   year:String
+   year:Int
    location:String
    Cu:Float
    Ni:Float
@@ -25,11 +25,11 @@ type AirSample {
     NO2:Float
     O3:Float
     PM10:Float
-    "PM2.5":Float
+    PM2_5:Float
     SO2:Float
 }
 
 type Query {
-   soil_samples: [SoilSample!]!
-   air_samples: [AirSample!]!
+   soil_samples(amount: Int, location: String, start_year:Int, end_year:Int): [SoilSample!]!
+   air_samples(amount: Int, start: String, end: String): [AirSample!]!
 }

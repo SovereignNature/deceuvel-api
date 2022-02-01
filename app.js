@@ -17,6 +17,7 @@ require('dotenv').config();
 
 // Configure mongoDB
 const mongo_url = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@${process.env.MONGO_DATABASE_HOST}:${process.env.MONGO_DATABASE_PORT}/${process.env.MONGO_INITDB_DATABASE}`;
+var mongo = undefined;
 
 // Configure GraphQL
 const gql_schema = loadSchemaSync('./graphql/schema.graphql', {
@@ -46,14 +47,13 @@ app.get('/', (req, res) => res.send('Hello!') ); // root endpoint
 
 // Insert data on the database on start if needed
 async function fillSoilData() {
-    const samples = await Soil.find();
-
-    if(samples.length == 0) {
-
-        var p1 = new Promise( (resolve, reject) => {
-            var n_lines = 0;
+    return new Promise( async (resolve, reject) => {
+        const samples = await Soil.find({}, null, {limit: 1});
+        if(samples.length == 0) {
             var aux_buffer = [];
             var last_row = undefined;
+
+            var to_insert = [];
 
             const convertRow = (row) => {
                 var aux = row.LOCATION.split(" ");
@@ -125,12 +125,6 @@ async function fillSoilData() {
                 return merged_row;
             };
 
-            const insertRow = (row) => {
-                const doc = Soil.create(row);
-
-                n_lines++;
-            };
-
             fs.createReadStream('./data/full_soil_data.csv')
                 .pipe(csv())
                 .on('data', (raw_row) => {
@@ -141,70 +135,73 @@ async function fillSoilData() {
                     } else {
                         if(aux_buffer.length > 0) {
                             // Merge entries
-                            insertRow(mergeRows(aux_buffer));
+                            to_insert.push(mergeRows(aux_buffer));
                         }
 
-                        insertRow(row);
+                        to_insert.push(row);
                     }
 
                     last_row = row;
                 })
-                .on('end', () => {
+                .on('end', async () => {
                     if(aux_buffer.length > 0) {
                         // Merge entries
-                        insertRow(mergeRows(aux_buffer));
+                        to_insert.push(mergeRows(aux_buffer));
                     }
 
-                    resolve(n_lines);
-                });
-        } );
+                    await Soil.create(to_insert);
 
-        var n_lines = await p1;
-        console.log(`Filled DB with ${n_lines} soil entries.`);
-    } else {
-        console.log("DB already filled with soil data.");
-    }
+                    console.log(`Filled DB with ${to_insert.length} soil entries.`);
+                    resolve();
+                });
+        } else {
+            console.log("DB already filled with soil data.");
+            resolve();
+        }
+    });
 }
 
 async function fillAirData() {
-    const samples = await Air.find();
+    return new Promise( async (resolve, reject) => {
+        const samples = await Air.find({}, null, {limit: 1});
+        if(samples.length == 0) {
+            // Insert Data
+            var to_insert = [];
 
-    if(samples.length == 0) {
-
-        var p1 = new Promise( (resolve, reject) => {
-            var n_lines = 0;
-
-            const insertRow = (row) => {
-                const doc = Air.create(row);
-
-                n_lines++;
-            };
-
-            fs.createReadStream('./data/air_data.csv')
-                .pipe(csv())
+            fs.createReadStream('./data/historical_air_data.csv')
+                .pipe(csv({ separator: ';'}))
                 .on('data', (row) => {
-                    insertRow(row);
+                    row['PM2_5'] = row['PM2.5'];
+                    delete row['PM2.5'];
+                    delete row[''];
+                    to_insert.push(row);
                 })
-                .on('end', () => {
-                    resolve(n_lines);
-                });
-        } );
+                .on('end', async () => {
+                    await Air.create(to_insert);
 
-        var n_lines = await p1;
-        console.log(`Filled DB with ${n_lines} air entries.`);
-    } else {
-        console.log("DB already filled with air data.");
-    }
+                    console.log(`Filled DB with ${to_insert.length} air entries.`);
+
+                    delete to_insert;
+
+                    resolve();
+                });
+        } else {
+            console.log("DB already filled with air data.");
+            resolve();
+        }
+    });
 }
 
 async function fillDB() {
-    fillSoilData();
-    fillAirData();
+    return Promise.all([
+        fillSoilData(),
+        fillAirData()
+    ]);
 }
 
 async function main() {
     // Connect to mongoDB
-    await mongoose.connect(mongo_url);
+    mongo = await mongoose.connect(mongo_url);
 
     // Fill db if needed
     await fillDB();

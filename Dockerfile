@@ -12,4 +12,4 @@ COPY ./models ./models/
 
 EXPOSE ${APP_PORT}
 
-CMD node app.js
+CMD node --max-old-space-size=4096 app.js
