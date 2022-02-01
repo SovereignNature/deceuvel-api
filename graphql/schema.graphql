@@ -29,7 +29,17 @@ type AirSample {
     SO2:Float
 }
 
+type SoilManiaParameters {
+    time:String
+    acidity:Float
+    oxygen_index:Float
+    soil_conductivity:Float
+    soil_moisture:Float
+    soil_temperature:Float
+}
+
 type Query {
    soil_samples(amount: Int, location: String, start_year:Int, end_year:Int): [SoilSample!]!
    air_samples(amount: Int, start: String, end: String): [AirSample!]!
+   soil_mania_parameters(amount: Int, start: String, end: String): [SoilManiaParameters!]!
 }

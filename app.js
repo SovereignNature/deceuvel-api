@@ -11,6 +11,7 @@ const fs = require('fs');
 
 const Soil = require('./models/SoilSample.js');
 const Air = require('./models/AirSample.js');
+const SoilManiaParameters = require('./models/SoilManiaParameters.js');
 
 
 require('dotenv').config();
@@ -192,10 +193,48 @@ async function fillAirData() {
     });
 }
 
+async function fillSoilManiaParameters() {
+    return new Promise( async (resolve, reject) => {
+        const samples = await SoilManiaParameters.find({}, null, {limit: 1});
+        if(samples.length == 0) {
+            // Insert Data
+            var to_insert = [];
+
+            fs.createReadStream('./data/soilmania_soil_parameters.csv')
+                .pipe(csv({ separator: ';'}))
+                .on('data', (raw_row) => {
+                    var row = {
+                        time: new Date(raw_row.Date + " " + raw_row.Time).toISOString(),
+                        acidity: Number(raw_row["Acidity ()"]),
+                        oxygen_index: Number(raw_row["Oxygen Index ()"]),
+                        soil_conductivity: Number(raw_row["Soil conductivity (mS)"]),
+                        soil_moisture: Number(raw_row["Soil moisture (%)"]),
+                        soil_temperature: Number(raw_row["Soil temperature (°C)"])
+                    };
+                    to_insert.push(row);
+                })
+                .on('end', async () => {
+                    await SoilManiaParameters.create(to_insert);
+
+                    console.log(`Filled DB with ${to_insert.length} soilmania parameters entries.`);
+
+                    delete to_insert;
+
+                    resolve();
+                });
+        } else {
+            console.log("DB already filled with soilmania parameters data.");
+            resolve();
+        }
+    });
+}
+
+
 async function fillDB() {
     return Promise.all([
         fillSoilData(),
-        fillAirData()
+        fillAirData(),
+        fillSoilManiaParameters()
     ]);
 }
 

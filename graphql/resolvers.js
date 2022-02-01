@@ -1,5 +1,6 @@
 const Soil = require('../models/SoilSample.js');
 const Air = require('../models/AirSample.js');
+const SoilManiaParameters = require('../models/SoilManiaParameters.js');
 
 async function fetchData(collection, filter, projection, options) {
 
@@ -37,5 +38,14 @@ module.exports = {
         if(args.end) filter.time.$lte = args.end;
 
         return fetchData(Air, filter, null, {limit: args.amount})
-    }
+    },
+    soil_mania_parameters: async (args) => {
+        var filter = {};
+
+        if(args.start||args.end) filter.time = {};
+        if(args.start) filter.time.$gte = args.start;
+        if(args.end) filter.time.$lte = args.end;
+
+        return fetchData(SoilManiaParameters, filter, null, {limit: args.amount})
+    },
 }
