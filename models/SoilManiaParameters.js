@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const soil_mania_parameters_schema = new Schema({
+const soilmania_parameters_schema = new Schema({
     time: {type: Date, required: false},
     acidity: {type: Number, required: false},
     oxygen_index: {type: Number, required: false},
@@ -10,4 +10,4 @@ const soil_mania_parameters_schema = new Schema({
     soil_temperature: {type: Number, required: false},
 });
 
-module.exports = mongoose.model('SoilManiaParameters', soil_mania_parameters_schema);
+module.exports = mongoose.model('SoilManiaParameters', soilmania_parameters_schema);

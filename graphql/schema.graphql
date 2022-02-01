@@ -38,8 +38,35 @@ type SoilManiaParameters {
     soil_temperature:Float
 }
 
+type SoilManiaElement {
+    time:String
+    Al:Float
+    As:Float
+    B:Float
+    Ca:Float
+    Cd:Float
+    Co:Float
+    Cu:Float
+    Fe:Float
+    Hg:Float
+    K:Float
+    Mg:Float
+    Mn:Float
+    Mo:Float
+    N:Float
+    Na:Float
+    Ni:Float
+    P:Float
+    Pb:Float
+    S:Float
+    Se:Float
+    Si:Float
+    Zn:Float
+}
+
 type Query {
    soil_samples(amount: Int, location: String, start_year:Int, end_year:Int): [SoilSample!]!
    air_samples(amount: Int, start: String, end: String): [AirSample!]!
-   soil_mania_parameters(amount: Int, start: String, end: String): [SoilManiaParameters!]!
+   soilmania_parameters(amount: Int, start: String, end: String): [SoilManiaParameters!]!
+   soilmania_elements(amount: Int, start: String, end: String): [SoilManiaElement!]!
 }

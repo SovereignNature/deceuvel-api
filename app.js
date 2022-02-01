@@ -12,7 +12,7 @@ const fs = require('fs');
 const Soil = require('./models/SoilSample.js');
 const Air = require('./models/AirSample.js');
 const SoilManiaParameters = require('./models/SoilManiaParameters.js');
-
+const SoilManiaElements = require('./models/SoilManiaElements.js');
 
 require('dotenv').config();
 
@@ -229,12 +229,65 @@ async function fillSoilManiaParameters() {
     });
 }
 
+async function fillSoilManiaElements() {
+    return new Promise( async (resolve, reject) => {
+        const samples = await SoilManiaElements.find({}, null, {limit: 1});
+        if(samples.length == 0) {
+            // Insert Data
+            var to_insert = [];
+
+            fs.createReadStream('./data/soilmania_element_availability.csv')
+                .pipe(csv({ separator: ';'}))
+                .on('data', (raw_row) => {
+                    var row = {
+                        time: new Date(raw_row.Date + " " + raw_row.Time).toISOString(),
+                        Al: Number(raw_row["Al ()"]),
+                        As: Number(raw_row["As ()"]),
+                        B: Number(raw_row["B ()"]),
+                        Ca: Number(raw_row["Ca ()"]),
+                        Cd: Number(raw_row["Cd ()"]),
+                        Co: Number(raw_row["Co ()"]),
+                        Cu: Number(raw_row["Cu ()"]),
+                        Fe: Number(raw_row["Fe ()"]),
+                        Hg: Number(raw_row["Hg ()"]),
+                        K: Number(raw_row["K ()"]),
+                        Mg: Number(raw_row["Mg ()"]),
+                        Mn: Number(raw_row["Mn ()"]),
+                        Mo: Number(raw_row["Mo ()"]),
+                        N: Number(raw_row["N ()"]),
+                        Na: Number(raw_row["Na ()"]),
+                        Ni: Number(raw_row["Ni ()"]),
+                        P: Number(raw_row["P ()"]),
+                        Pb: Number(raw_row["Pb ()"]),
+                        S: Number(raw_row["S ()"]),
+                        Se: Number(raw_row["Se ()"]),
+                        Si: Number(raw_row["Si ()"]),
+                        Zn: Number(raw_row["Zn ()"]),
+                    };
+                    to_insert.push(row);
+                })
+                .on('end', async () => {
+                    await SoilManiaElements.create(to_insert);
+
+                    console.log(`Filled DB with ${to_insert.length} soilmania element entries.`);
+
+                    delete to_insert;
+
+                    resolve();
+                });
+        } else {
+            console.log("DB already filled with soilmania element data.");
+            resolve();
+        }
+    });
+}
 
 async function fillDB() {
     return Promise.all([
         fillSoilData(),
         fillAirData(),
-        fillSoilManiaParameters()
+        fillSoilManiaParameters(),
+        fillSoilManiaElements()
     ]);
 }
 
