@@ -166,26 +166,46 @@ async function fillAirData() {
     return new Promise( async (resolve, reject) => {
         const samples = await Air.find({}, null, {limit: 1});
         if(samples.length == 0) {
-            // Insert Data
-            var to_insert = [];
 
-            fs.createReadStream('./data/historical_air_data.csv')
-                .pipe(csv({ separator: ';'}))
-                .on('data', (row) => {
-                    row['PM2_5'] = row['PM2.5'];
-                    delete row['PM2.5'];
-                    delete row[''];
-                    to_insert.push(row);
-                })
-                .on('end', async () => {
-                    await Air.create(to_insert);
+            var files = ['historical_air_data', '31-01-2022_Daily', '01-02-2022_Daily', '02-02-2022_Daily'];
 
-                    console.log(`Filled DB with ${to_insert.length} air entries.`);
+            var n_lines = 0;
 
-                    delete to_insert;
+            var promisses = [];
+            files.forEach((item, i) => {
+                var path = './data/' + item + '.csv';
 
-                    resolve();
+                //var to_insert = [];
+
+                var prom = new Promise( async (resolve2, reject2) => {
+                    fs.createReadStream(path)
+                        .pipe(csv({ separator: ';'}))
+                        .on('data', (row) => {
+                            row['PM2_5'] = row['PM2.5'];
+                            delete row['PM2.5'];
+                            delete row[''];
+                            //to_insert.push(row);
+
+                            await Air.create(row);
+                            n_lines++;
+                            delete row;
+                        })
+                        .on('end', async () => {
+                            /*await Air.create(to_insert);
+
+                            n_lines += to_insert.length;
+
+                            delete to_insert;*/
+
+                            resolve2();
+                        });
                 });
+                promisses.push(prom);
+            });
+            await Promise.all(promisses);
+
+            console.log(`Filled DB with ${n_lines} air entries.`);
+            resolve();
         } else {
             console.log("DB already filled with air data.");
             resolve();

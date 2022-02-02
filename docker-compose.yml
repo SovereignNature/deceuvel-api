@@ -14,10 +14,11 @@ services:
         volumes:
           #- ./mongo:/home/mongodb
           - ./mongo/docker/:/docker-entrypoint-initdb.d/
-          #- ./mongo/db:/data/db
+          - ./mongo/db:/data/db
 
     api:
         build: .
+        image: deceuvel-api:1.0.0
         container_name: api
         ports:
             - "${APP_PORT}:${APP_PORT}"

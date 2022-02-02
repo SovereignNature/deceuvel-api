@@ -3,7 +3,7 @@ FROM node:latest
 WORKDIR /deceuvel-api
 
 COPY package.json ./
-RUN npm install
+RUN npm install #--verbose
 
 COPY app.js ./
 COPY ./data ./data/
