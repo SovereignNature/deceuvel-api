@@ -167,36 +167,32 @@ async function fillAirData() {
         const samples = await Air.find({}, null, {limit: 1});
         if(samples.length == 0) {
 
-            var files = ['historical_air_data', '31-01-2022_Daily', '01-02-2022_Daily', '02-02-2022_Daily'];
+            var files = ['historical_air_data.csv'];
+            (await fs.promises.readdir('./data')).forEach( (item, i) => {
+                if(item.includes("_Daily")) {
+                    files.push(item);
+                }
+            });
 
             var n_lines = 0;
 
             var promisses = [];
             files.forEach((item, i) => {
-                var path = './data/' + item + '.csv';
-
-                //var to_insert = [];
+                var path = './data/' + item;
 
                 var prom = new Promise( async (resolve2, reject2) => {
                     fs.createReadStream(path)
                         .pipe(csv({ separator: ';'}))
-                        .on('data', (row) => {
+                        .on('data', async (row) => {
                             row['PM2_5'] = row['PM2.5'];
                             delete row['PM2.5'];
                             delete row[''];
-                            //to_insert.push(row);
 
                             await Air.create(row);
                             n_lines++;
                             delete row;
                         })
                         .on('end', async () => {
-                            /*await Air.create(to_insert);
-
-                            n_lines += to_insert.length;
-
-                            delete to_insert;*/
-
                             resolve2();
                         });
                 });
