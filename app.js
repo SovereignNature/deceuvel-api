@@ -174,13 +174,16 @@ async function fillAirData() {
                 }
             });
 
-            var n_lines = 0;
 
             var promisses = [];
             files.forEach((item, i) => {
                 var path = './data/' + item;
 
-                var prom = new Promise( async (resolve2, reject2) => {
+                //console.log(path);
+
+                promisses.push(new Promise( async (resolve2, reject2) => {
+                    var n_lines = 0;
+
                     fs.createReadStream(path)
                         .pipe(csv({ separator: ';'}))
                         .on('data', async (row) => {
@@ -188,17 +191,19 @@ async function fillAirData() {
                             delete row['PM2.5'];
                             delete row[''];
 
-                            await Air.create(row);
                             n_lines++;
+
+                            await Air.create(row);
+
                             delete row;
                         })
-                        .on('end', async () => {
-                            resolve2();
+                        .on('end', () => {
+                            console.log(path + " finished! " + n_lines);
+                            resolve2(n_lines);
                         });
-                });
-                promisses.push(prom);
+                }));
             });
-            await Promise.all(promisses);
+            var n_lines = (await Promise.all(promisses)).reduce((a, b) => a+b);
 
             console.log(`Filled DB with ${n_lines} air entries.`);
             resolve();
