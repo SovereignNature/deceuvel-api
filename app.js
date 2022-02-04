@@ -198,7 +198,7 @@ async function fillAirData() {
                             delete row;
                         })
                         .on('end', () => {
-                            console.log(path + " finished! " + n_lines);
+                            // console.log(path + " finished! " + n_lines);
                             resolve2(n_lines);
                         });
                 }));
