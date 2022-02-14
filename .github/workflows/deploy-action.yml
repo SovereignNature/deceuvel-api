@@ -25,14 +25,6 @@ jobs:
                 port: ${{ secrets.SSH_PORT }}
                 source: "deceuvel-api.tar"
                 target: "~/"
-            - name: Debug
-              uses: appleboy/ssh-action@master
-              with:
-                  host: ${{ secrets.HOST }}
-                  username: ${{ secrets.USERNAME }}
-                  key: ${{ secrets.HOST_KEY }}
-                  port: ${{ secrets.SSH_PORT }}
-                  script: "echo $HOSTNAME"
             - name: Import image to cluster
               uses: appleboy/ssh-action@master
               with:
@@ -40,7 +32,7 @@ jobs:
                   username: ${{ secrets.USERNAME }}
                   key: ${{ secrets.HOST_KEY }}
                   port: ${{ secrets.SSH_PORT }}
-                  script: "microk8s ctr image import deceuvel-api.tar && rm deceuvel-api.tar"
+                  script: "$(echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr image import deceuvel-api.tar) && $(echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr images ls) && rm deceuvel-api.tar"
             - run: rm deceuvel-api.tar
             - name: Deploy
               uses: actions-hub/kubectl@master
