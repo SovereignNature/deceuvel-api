@@ -313,12 +313,17 @@ async function fillSoilManiaElements() {
 }
 
 async function fillDB() {
-    return Promise.all([
-        fillSoilData(),
-        fillAirData(),
-        fillSoilManiaParameters(),
-        fillSoilManiaElements()
-    ]);
+
+    if (fs.existsSync("./data")) {
+        return Promise.all([
+            fillSoilData(),
+            fillAirData(),
+            fillSoilManiaParameters(),
+            fillSoilManiaElements()
+        ]);
+    } else {
+        console.log('Directory ./data not found!');
+    }
 }
 
 async function main() {
