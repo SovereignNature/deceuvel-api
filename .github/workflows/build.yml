@@ -1,0 +1,16 @@
+name: Build deceuvel-api docker image
+on: [push]
+jobs:
+    Build-Image:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "Triggered by a ${{ github.event_name }} event."
+            - run: echo "Running on a ${{ runner.os }} server."
+            - run: echo "Branch is ${{ github.ref }} and the repository is ${{ github.repository }}."
+            - name: Check out repository code
+              uses: actions/checkout@v2
+            - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+            - name: Build Docker Image
+              run: docker build ./${{ github.workspace }} -t deceuvel-api:1.0.0
+              run: docker images
+            - run: echo "This job's status is ${{ job.status }}."
