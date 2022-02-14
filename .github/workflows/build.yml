@@ -1,7 +1,7 @@
 name: Build Docker Image
 on: [push]
 jobs:
-    Build-Image:
+    Deploy-Image:
         runs-on: ubuntu-latest
         steps:
             - run: echo "Triggered by a ${{ github.event_name }} event."
@@ -14,4 +14,30 @@ jobs:
               run: docker build ${{ github.workspace }} -t deceuvel-api:1.0.0
             - name: List Docker Images
               run: docker images
+            - name: Export Docker Image
+              run: docker save deceuvel-api > deceuvel-api.tar
+            - name: Upload Image to Cluster
+              uses: appleboy/scp-action@master
+              with:
+                host: ${{ secrets.HOST }}
+                username: ${{ secrets.USERNAME }}
+                key: ${{ secrets.HOST_KEY }}
+                port: ${{ secrets.SSH_PORT }}
+                source: "deceuvel-api.tar"
+                target: "~/"
+            - name: Import image to cluster
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  key: ${{ secrets.HOST_KEY }}
+                  port: ${{ secrets.SSH_PORT }}
+                  script: microk8s ctr image import deceuvel-api.tar && rm deceuvel-api.tar
+            - run: rm deceuvel-api.tar
+            - name: Deploy
+              uses: actions-hub/kubectl@master
+              env:
+                KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+              with:
+                args: apply -f ${{ github.workspace }}/deploy.yml -n deceuvel-api-dev
             - run: echo "This job's status is ${{ job.status }}."
