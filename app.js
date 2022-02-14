@@ -38,7 +38,16 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use('/graphql', graphql_http); // graphql endpoint
-app.get('/', (req, res) => res.send('Hello!') ); // root endpoint
+app.get('/', (req, res) => res.send( // root endpoint
+    "<!DOCTYPE html>\
+    <html>\
+    <body>\
+    <h1>Hello</h1>\
+    </body>\
+    </html>"
+));
+
+
 
 /*app.get('/samples', async (req, res) => {
     var samples = await Soil.find();
