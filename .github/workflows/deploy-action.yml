@@ -9,7 +9,7 @@ jobs:
         if: startsWith(github.event.head_commit.message, 'release')
         steps:
             - run: echo "Triggered by a ${{ github.event_name }} event."
-            - run: echo "Commit Message ${{ github.event.head_commit }}"
+            - run: echo "Commit Message: ${{ github.event.head_commit.message }}"
             - run: echo "Running on a ${{ runner.os }} server."
             - run: echo "Branch is ${{ github.ref }} and the repository is ${{ github.repository }}."
             - name: Check out repository code
