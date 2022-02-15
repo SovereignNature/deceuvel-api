@@ -17,8 +17,27 @@ const SoilManiaElements = require('./models/SoilManiaElements.js');
 require('dotenv').config();
 
 // Configure mongoDB
-const mongo_url = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@${process.env.MONGO_DATABASE_HOST}:${process.env.MONGO_DATABASE_PORT}/${process.env.MONGO_INITDB_DATABASE}`;
-var mongo = undefined;
+async function connectDB() {
+
+    var env_vars = [
+        "MONGO_INITDB_ROOT_USERNAME",
+        "MONGO_INITDB_ROOT_PASSWORD",
+        "MONGO_DATABASE_HOST",
+        "MONGO_DATABASE_PORT",
+        "MONGO_INITDB_DATABASE"
+    ];
+
+    env_vars.forEach((item, i) => {
+        if( process.env.MONGO_INITDB_ROOT_USERNAME == null ) {
+            throw `Env var ${item} not defined!`;
+        }
+    });
+
+    const mongo_url = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@${process.env.MONGO_DATABASE_HOST}:${process.env.MONGO_DATABASE_PORT}/${process.env.MONGO_INITDB_DATABASE}`;
+
+    return mongoose.connect(mongo_url);
+}
+
 
 // Configure GraphQL
 const gql_schema = loadSchemaSync('./graphql/schema.graphql', {
@@ -43,6 +62,7 @@ app.get('/', (req, res) => res.send( // root endpoint
     <html>\
     <body>\
     <h1>Hello!</h1>\
+    <p>The backend is working!</p>
     </body>\
     </html>"
 ));
@@ -328,18 +348,18 @@ async function fillDB() {
 
 async function main() {
     // Connect to mongoDB
-    mongo = await mongoose.connect(mongo_url);
+    await connectDB();
 
     // Fill db if needed
     await fillDB();
 
     // Start App
-    app.listen(process.env.APP_PORT, (err) => {
+    const port = 80; // process.env.APP_PORT
+    app.listen(port, (err) => {
         if (err)
             console.log("Error in server setup!");
         else
-            console.log(`App connected to port ${process.env.APP_PORT}.`)
+            console.log(`App connected to port ${port}.`)
     });
 }
-
 main();
