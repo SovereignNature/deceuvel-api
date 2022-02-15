@@ -4,7 +4,7 @@ on:
         - main
 jobs:
     Deploy-Image:
-        if: "!startsWith(github.event.head_commit.message, 'release/')"
+        if: "startsWith(github.event.head_commit.message, 'release/')"
         runs-on: ubuntu-latest
         steps:
             - run: echo "Triggered by a ${{ github.event_name }} event."
