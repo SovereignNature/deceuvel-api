@@ -1,6 +1,6 @@
 name: Build Docker Image
 on:
-    branches:
+    branch:
         - main
 jobs:
     Deploy-Image:
