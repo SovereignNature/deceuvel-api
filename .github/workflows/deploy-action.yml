@@ -5,7 +5,7 @@ on:
 jobs:
     Deploy-Image:
         runs-on: ubuntu-latest
-        if: startsWith(github.event.head_commit.message, 'release')
+        #if: startsWith(github.event.head_commit.message, 'release')
         steps:
             - run: echo "Triggered by a ${{ github.event_name }} event."
             - run: echo "Commit Message ${{ github.event.head_commit }}"
