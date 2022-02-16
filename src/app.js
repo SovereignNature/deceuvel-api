@@ -38,7 +38,6 @@ async function connectDB() {
     return mongoose.connect(mongo_url);
 }
 
-
 // Configure GraphQL
 const gql_schema = loadSchemaSync('./graphql/schema.graphql', {
   loaders: [new GraphQLFileLoader()]
@@ -56,18 +55,13 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use('/graphql', graphql_http); // graphql endpoint
-app.get('/', (req, res) => res.send( // root endpoint
-    "<!DOCTYPE html>\
-    <html>\
-    <body>\
-    <h1>Hello!</h1>\
-    <p>The backend web-server is working!</p>\
-    </body>\
-    </html>"
-));
+// graphql endpoint
+app.use('/graphql', graphql_http);
 
-
+ // root endpoint
+app.get('/', (req, res) =>
+    res.send("<!DOCTYPE html><html><body><h1>Hello!</h1></body></html>\n")
+);
 
 /*app.get('/samples', async (req, res) => {
     var samples = await Soil.find();

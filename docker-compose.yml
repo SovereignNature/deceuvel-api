@@ -18,7 +18,7 @@ services:
 
     api:
         build: .
-        image: deceuvel-api:1.0.0
+        image: deceuvel-api:latest
         container_name: api
         ports:
             - "${APP_PORT}:80"
