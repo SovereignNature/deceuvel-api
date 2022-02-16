@@ -16,7 +16,7 @@ jobs:
             #- run: echo "Running on a ${{ runner.os }} server."
             #- run: echo "Branch is ${{ github.ref }} and the repository is ${{ github.repository }}."
             - name: Set CONTAINER_TAG
-              run: echo "CONTAINER_TAG=$(sed 's#${{github.ref}}#refs/tags/#')" >> $GITHUB_ENV
+              run: echo "CONTAINER_TAG=$(echo ${{github.ref}} | sed 's/refs\/tags\///')" >> $GITHUB_ENV
             - name: Test
               run: echo ${{ env.CONTAINER_TAG }}
             - name: Check out repository code
