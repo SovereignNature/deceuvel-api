@@ -18,7 +18,7 @@ jobs:
             - name: Set CONTAINER_TAG
               run: echo "CONTAINER_TAG=$(sed 's#${{github.ref}}#refs/tags/#')" >> $GITHUB_ENV
             - name: Test
-              run: echo "Container Tag $CONTAINER_TAG"
+              run: echo "Container Tag "$CONTAINER_TAG
             - name: Check out repository code
               uses: actions/checkout@v2
             #- run: echo "The ${{ github.repository }} repository has been cloned to the runner."
@@ -46,7 +46,7 @@ jobs:
                   port: ${{ secrets.SSH_PORT }}
                   script: "(echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr image import deceuvel-api.tar) && (echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr images ls) && rm deceuvel-api.tar"
             - run: rm deceuvel-api.tar
-            - run: sed -i 's/%CONTAINER_TAG%/$CONTAINER_TAG/g' deployment/deploy-api.yml
+            - run: sed -i "s/%CONTAINER_TAG%/"$CONTAINER_TAG"/g" deployment/deploy-api.yml
             - name: Deploy
               uses: actions-hub/kubectl@master
               env:
