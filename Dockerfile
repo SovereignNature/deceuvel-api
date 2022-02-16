@@ -23,10 +23,8 @@ FROM node:$NODE_VERSION AS production
 WORKDIR /deceuvel-api
 COPY --from=pruner /deceuvel-api/node_modules ./node_modules
 
-COPY ["./models", "./models/"]
-COPY ["./graphql", "./graphql/"]
-COPY ["app.js", "./"]
+COPY ["./src", "./src/"]
 
 EXPOSE 80/tcp
 
-ENTRYPOINT ["node", "--max-old-space-size=4096", "app.js"]
+ENTRYPOINT ["node", "--max-old-space-size=4096", "src/app.js"]

@@ -62,7 +62,7 @@ app.get('/', (req, res) => res.send( // root endpoint
     <html>\
     <body>\
     <h1>Hello!</h1>\
-    <p>The backend server is working!</p>\
+    <p>The backend web-server is working!</p>\
     </body>\
     </html>"
 ));

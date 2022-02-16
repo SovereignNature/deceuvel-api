@@ -1,1 +1,10 @@
-./mongo/*
+mongo/
+node_modules/
+data/
+*.yml
+*.md
+.gitignore
+.github/
+.git/
+.env
+/deployment

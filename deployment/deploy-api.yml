@@ -28,7 +28,7 @@ spec:
         kubernetes.io/os: linux
       containers:
       - name: deceuvel-api-container
-        image: deceuvel-api:1.0.1
+        image: deceuvel-api:%CONTAINER_TAG%
         imagePullPolicy: Never
         ports:
         - containerPort: 80
