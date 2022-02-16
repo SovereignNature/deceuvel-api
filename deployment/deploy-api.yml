@@ -26,10 +26,12 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/os: linux
+      imagePullSecrets:
+      - name: regcred
       containers:
       - name: deceuvel-api-container
-        image: deceuvel-api:%CONTAINER_TAG%
-        imagePullPolicy: Never
+        image: test.compendium.sovereignnature.ch/deceuvel-api:%CONTAINER_TAG%
+        #imagePullPolicy: Never
         ports:
         - containerPort: 80
         env:
