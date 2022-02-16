@@ -9,13 +9,13 @@ jobs:
     Deploy-Image:
         runs-on: ubuntu-latest
         #if: startsWith(github.event.head_commit.message, 'release')
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        #if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         steps:
             #- run: echo "Triggered by a ${{ github.event_name }} event."
             #- run: echo "Commit Message ${{ github.event.head_commit }}"
             #- run: echo "Running on a ${{ runner.os }} server."
             #- run: echo "Branch is ${{ github.ref }} and the repository is ${{ github.repository }}."
-            - run: export CONTAINER_TAG=$(sed 's/${{github.ref}}/refs\/tags\//')
+            - run: export CONTAINER_TAG=$(sed 's#${{github.ref}}#refs/tags/#')
             - run: echo "Container Tag $CONTAINER_TAG"
             - name: Check out repository code
               uses: actions/checkout@v2
