@@ -15,7 +15,9 @@ jobs:
             #- run: echo "Commit Message ${{ github.event.head_commit }}"
             #- run: echo "Running on a ${{ runner.os }} server."
             #- run: echo "Branch is ${{ github.ref }} and the repository is ${{ github.repository }}."
-            - run: echo "the repository is ${{ github.repository }}""
+            #- run: echo "the repository is ${{ github.repository }}"
+            - name: Set REP_NAME
+              run: echo "REP_NAME=$(echo ${{github.repository}} | awk '{split($0,a,"/"); print a[2]}')" >> $GITHUB_ENV
             - name: Set CONTAINER_TAG
               run: echo "CONTAINER_TAG=$(echo ${{github.ref}} | sed 's/refs\/tags\///')" >> $GITHUB_ENV
             - name: Test
@@ -24,7 +26,7 @@ jobs:
               uses: actions/checkout@v2
             #- run: echo "The ${{ github.repository }} repository has been cloned to the runner."
             - name: Build Docker Image
-              run: docker build ${{ github.workspace }} -t deceuvel-api:${{ env.CONTAINER_TAG }} --build-arg IMG_TAG_VAR=${{ env.CONTAINER_TAG }}
+              run: docker build ${{ github.workspace }} -t ${{ env.REP_NAME }}:${{ env.CONTAINER_TAG }} --build-arg IMG_TAG_VAR=${{ env.CONTAINER_TAG }}
             #- name: List Docker Images
             #  run: docker images
 
@@ -32,12 +34,12 @@ jobs:
             - name: Login to Registry
               run: docker login ${{ env.REGISTRY }} -u sni-admin -p ${{secrets.REGISTRY_PASSWORD}}
             - name: Tag Image
-              run: docker image tag deceuvel-api:${{ env.CONTAINER_TAG }} ${{ env.REGISTRY }}/sni-admin/deceuvel-api:${{ env.CONTAINER_TAG }}
+              run: docker image tag ${{ env.REP_NAME }}:${{ env.CONTAINER_TAG }} ${{ env.REGISTRY }}/sni-admin/${{ env.REP_NAME }}:${{ env.CONTAINER_TAG }}
             - name: Upload Image to Registry
-              run: docker image push ${{ env.REGISTRY }}/sni-admin/deceuvel-api:${{ env.CONTAINER_TAG }}
+              run: docker image push ${{ env.REGISTRY }}/sni-admin/${{ env.REP_NAME }}:${{ env.CONTAINER_TAG }}
 
             #- name: Export Docker Image
-            #  run: docker save deceuvel-api > deceuvel-api.tar
+            #  run: docker save ${{ env.REP_NAME }} > ${{ env.REP_NAME }}.tar
             #- name: Upload Image to Cluster
             #  uses: appleboy/scp-action@master
             #  with:
@@ -45,7 +47,7 @@ jobs:
             #    username: ${{ secrets.USERNAME }}
             #    key: ${{ secrets.HOST_KEY }}
             #    port: ${{ secrets.SSH_PORT }}
-            #    source: "deceuvel-api.tar"
+            #    source: "${{ env.REP_NAME }}.tar"
             #    target: "~/"
             #- name: Import image in the cluster
             #  uses: appleboy/ssh-action@master
@@ -54,20 +56,20 @@ jobs:
             #      username: ${{ secrets.USERNAME }}
             #      key: ${{ secrets.HOST_KEY }}
             #      port: ${{ secrets.SSH_PORT }}
-            #      script: "(echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr image import deceuvel-api.tar) && (echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr images ls) && rm deceuvel-api.tar"
-            #- run: rm deceuvel-api.tar
+            #      script: "(echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr image import ${{ env.REP_NAME }}.tar) && (echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr images ls) && rm ${{ env.REP_NAME }}.tar"
+            #- run: rm ${{ env.REP_NAME }}.tar
             - run: sed -i "s/%CONTAINER_TAG%/${{ env.CONTAINER_TAG }}/g" deployment/deploy-api.yml
             - name: Deploy
               uses: actions-hub/kubectl@master
               env:
                 KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
               with:
-                args: apply -f deployment/deploy-api.yml -n deceuvel-api-dev
+                args: apply -f deployment/deploy-api.yml -n ${{ env.REP_NAME }}-dev
             # Force restart
             #- name: Rollout
             #  uses: actions-hub/kubectl@master
             #  env:
             #    KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
             #  with:
-            #    args: rollout restart deployment deceuvel-api-deployment -n deceuvel-api-dev
+            #    args: rollout restart deployment ${{ env.REP_NAME }}-deployment -n ${{ env.REP_NAME }}-dev
             #- run: echo "This job's status is ${{ job.status }}."
