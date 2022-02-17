@@ -28,9 +28,9 @@ COPY ["./src", "."]
 ARG IMG_TAG_VAR=1.0.0
 ENV IMG_TAG=$IMG_TAG_VAR
 
-RUN echo "NODE = $NODE_VERSION"
-RUN echo "VAR = $IMG_TAG_VAR"
-RUN echo "ENV = $IMG_TAG"
+#RUN echo "NODE = $NODE_VERSION"
+#RUN echo "VAR = $IMG_TAG_VAR"
+#RUN echo "ENV = $IMG_TAG"
 
 EXPOSE 80/tcp
 
