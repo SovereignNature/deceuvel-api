@@ -17,8 +17,11 @@ services:
           - ./mongo/db:/data/db
 
     api:
-        build: . --build-arg IMG_TAG_VAR=latest
-        image: deceuvel-api:latest
+        build:
+            context: .
+            args:
+                IMG_TAG_VAR: "$IMG_TAG"
+        image: deceuvel-api:$IMG_TAG
         container_name: api
         ports:
             - "${APP_PORT}:80"
