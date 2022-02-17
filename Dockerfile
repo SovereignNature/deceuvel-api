@@ -1,7 +1,7 @@
-ARG NODE_VERSION=16.14.0-alpine3.15
+ARG CUSTOM_NODE_VERSION=16.14.0-alpine3.15
 
 # Create base layer with dependencies
-FROM node:$NODE_VERSION AS dependencies
+FROM node:$CUSTOM_NODE_VERSION AS dependencies
 WORKDIR /deceuvel-api
 COPY ["package.json", "./"]
 RUN ["npm", "install", "--production"] #, "--verbose"]
@@ -14,12 +14,18 @@ RUN npm install modclean -g && \
     modclean -n default:safe --run && \
     npm uninstall -g modclean
 
+#ARG CUSTOM_NODE_VERSION
+#RUN echo "NODE = $CUSTOM_NODE_VERSION"
+
 FROM softonic/node-prune:latest AS pruner
 COPY --from=dependencies /deceuvel-api/node_modules /deceuvel-api/node_modules
 RUN node-prune /deceuvel-api/node_modules
 
+#ARG CUSTOM_NODE_VERSION #=16.14.0-alpine3.15
+#RUN echo "NODE = $CUSTOM_NODE_VERSION"
+
 # Create final layer
-FROM node:$NODE_VERSION AS production
+FROM node:$CUSTOM_NODE_VERSION AS production
 WORKDIR /deceuvel-api
 COPY --from=pruner /deceuvel-api/node_modules ./node_modules
 
@@ -28,7 +34,8 @@ COPY ["./src", "."]
 ARG IMG_TAG_VAR=1.0.0
 ENV IMG_TAG=$IMG_TAG_VAR
 
-#RUN echo "NODE = $NODE_VERSION"
+ARG CUSTOM_NODE_VERSION
+#RUN echo "NODE = $CUSTOM_NODE_VERSION"
 #RUN echo "VAR = $IMG_TAG_VAR"
 #RUN echo "ENV = $IMG_TAG"
 

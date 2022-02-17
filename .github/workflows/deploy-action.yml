@@ -21,14 +21,17 @@ jobs:
             #- run: echo "the repository is ${{ github.repository }}"
             - name: Set ENV Variables
               run: |
-                echo "REP_NAME=$(echo ${{github.repository}} | awk '{split($0,a,"/"); print a[2]}')" >> $GITHUB_ENV
-                echo "CONTAINER_TAG=$(echo ${{github.ref}} | sed 's/refs\/tags\///')" >> $GITHUB_ENV
-                echo "REGISTRY=test.compendium.sovereignnature.ch" >> $GITHUB_ENV
-                echo "FULL_TAG=${{ env.REGISTRY }}/${{ env.REP_NAME }}:${{ env.CONTAINER_TAG }})" >> $GITHUB_ENV
+                export REP_NAME=$(echo ${{github.repository}} | awk '{split($0,a,"/"); print a[2]}')
+                echo "REP_NAME=$REP_NAME" >> $GITHUB_ENV
+                export CONTAINER_TAG=$(echo ${{github.ref}} | sed 's/refs\/tags\///')
+                echo "CONTAINER_TAG=$CONTAINER_TAG" >> $GITHUB_ENV
+                export REGISTRY=test.compendium.sovereignnature.ch
+                echo "REGISTRY=$REGISTRY" >> $GITHUB_ENV
+                echo "FULL_TAG=$REGISTRY/$REP_NAME:$CONTAINER_TAG" >> $GITHUB_ENV
 
             #- name: Test
             #  run: echo ${{ env.CONTAINER_TAG }}
-            - name: Check out repository code
+            - name: Check-out Repository Code
               uses: actions/checkout@v2
             #- run: echo "The ${{ github.repository }} repository has been cloned to the runner."
 
@@ -36,7 +39,7 @@ jobs:
               run: docker build ${{ github.workspace }} -t ${{ env.FULL_TAG }} --build-arg IMG_TAG_VAR=${{ env.CONTAINER_TAG }}
             #- name: List Docker Images
             #  run: docker images
-            
+
             - name: Save Image (Artifact)
               run: |
                 mkdir -p ./artifacts/deployment
@@ -50,7 +53,7 @@ jobs:
               with:
                 name: docker-artifact
                 path: ./artifacts
-    
+
     Test-Image:
         needs: Build-Image
         runs-on: ubuntu-latest
@@ -62,7 +65,7 @@ jobs:
              with:
                name: docker-artifact
                path: .
-               
+
            - name: Import Image
              run: |
                 #cd ./artifacts
@@ -80,12 +83,12 @@ jobs:
                 cat .env
                 docker-compose --build up -d
                 sleep 5
-        
+
            - name: Heartbeat Test
              run: |
                export RES=$(curl -s -o /dev/null -I -w "%{http_code}" http://localhost:3000/)
                echo $RES
-               [[ $RES =~ "200 OK" ]] 
+               [[ $RES =~ "200 OK" ]]
 
     Deploy-Image:
         needs: Test-Image
@@ -95,7 +98,7 @@ jobs:
         steps:
             #- name: Login to Registry
             #  run: docker login ${{ env.REGISTRY }} -u sni-admin -p ${{secrets.REGISTRY_PASSWORD}}
-              
+
             - name: Download Image (Artifact)
               uses: actions/download-artifact@v2
               with:
@@ -105,8 +108,8 @@ jobs:
               run: |
                  #cd ./artifacts
                  docker load < docker-image.tar
-                 echo "FULL_TAG=$(cat tag.txt)" >> $GITHUB_ENV    
-          
+                 echo "FULL_TAG=$(cat tag.txt)" >> $GITHUB_ENV
+
             - name: Login to Registry
               uses: docker/login-action@v1
               with:
@@ -137,10 +140,10 @@ jobs:
             #      port: ${{ secrets.SSH_PORT }}
             #      script: "(echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr image import ${{ env.REP_NAME }}.tar) && (echo \"${{ secrets.SUDO }}\" | sudo -S microk8s ctr images ls) && rm ${{ env.REP_NAME }}.tar"
             #- run: rm ${{ env.REP_NAME }}.tar
-            
+
             - name: Configure Deployment File
               run: sed -i "s/%CONTAINER_TAG%/${{ env.FULL_TAG }}/g" deployment/deploy-api.yml
-           
+
             - name: Deploy to Cluster
               uses: actions-hub/kubectl@master
               env:
