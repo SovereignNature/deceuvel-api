@@ -30,7 +30,7 @@ spec:
       - name: regcred
       containers:
       - name: deceuvel-api-container
-        image: test.compendium.sovereignnature.ch/deceuvel-api:%CONTAINER_TAG%
+        image: %CONTAINER_TAG%
         #imagePullPolicy: Never
         ports:
         - containerPort: 80
