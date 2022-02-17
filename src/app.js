@@ -59,9 +59,17 @@ app.use(cors());
 app.use('/graphql', graphql_http);
 
  // root endpoint
-app.get('/', (req, res) =>
-    res.send("<!DOCTYPE html><html><body><h1>Hello!</h1></body></html>\n")
-);
+app.get('/', (req, res) => {
+    var html = "<!DOCTYPE html><html><body><h1>Hello!</h1>";
+
+    var tag = process.env.IMG_TAG;
+    if(tag) {
+        html += `</p>${tag}</p>`;
+    }
+
+    html += "</body></html>\n";
+    res.send(html);
+});
 
 /*app.get('/samples', async (req, res) => {
     var samples = await Soil.find();

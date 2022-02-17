@@ -1,5 +1,8 @@
 ARG NODE_VERSION=16.14.0-alpine3.15
 
+ARG IMG_TAG_VAR=1.0.0
+ENV IMG_TAG=$IMG_TAG_VAR
+
 # Create base layer with dependencies
 FROM node:$NODE_VERSION AS dependencies
 WORKDIR /deceuvel-api
