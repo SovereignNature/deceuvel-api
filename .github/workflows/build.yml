@@ -81,7 +81,7 @@ jobs:
               
             - name: Deploy Image to Cluster
               if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
-              uses: ./.github/workflows/deploy
+              uses: ./.github/workflows/deploy.yml
               with:
                 tag: ${{ env.CONTAINER_TAG }}
                 namespace: ${{ github.event_name == 'push' && 'dev' || github.event.inputs.namespace }}
