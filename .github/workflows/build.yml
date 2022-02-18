@@ -1,8 +1,8 @@
 name: Build Docker Image
 on:
     push:
-        branches:
-            - 'main'
+        #branches:
+        #    - 'main'
         tags:
             - v*
     #pull_request:
@@ -18,13 +18,13 @@ jobs:
     Build-Image:
         runs-on: ubuntu-latest
         #if: startsWith(github.event.head_commit.message, 'release')
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        #if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         steps:
             - name: Set ENV Variables
               run: |
                 export REP_NAME=$(echo ${{github.repository}} | awk '{split($0,a,"/"); print a[2]}')
                 echo "REP_NAME=$REP_NAME" >> $GITHUB_ENV
-                export CONTAINER_TAG=$(echo ${{github.ref}} | sed 's/refs\/tags\///')
+                if [[ ${{ github.event_name }} = "workflow_dispatch" ]]; then export CONTAINER_TAG=${{ github.event.inputs.tag }}; else export CONTAINER_TAG=$(echo ${{github.ref}} | sed 's/refs\/tags\///') fi
                 echo "CONTAINER_TAG=$CONTAINER_TAG" >> $GITHUB_ENV
                 export REGISTRY=test.compendium.sovereignnature.ch
                 echo "REGISTRY=$REGISTRY" >> $GITHUB_ENV
