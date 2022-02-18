@@ -29,6 +29,9 @@ jobs:
                 echo "FULL_TAG=$FULL_TAG" >> $GITHUB_ENV
                 echo "Full Tag "$FULL_TAG
 
+            - name: Check-out Repository Code
+              uses: actions/checkout@v2
+
             - name: Configure Deployment File
               run: sed -i "s#%CONTAINER_TAG%#${{ env.FULL_TAG }}#g" deployment/deploy-api.yml
 
