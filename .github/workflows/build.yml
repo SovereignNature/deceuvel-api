@@ -84,4 +84,4 @@ jobs:
               uses: ./.github/workflows/deploy
               with:
                 tag: ${{ env.CONTAINER_TAG }}
-                namespace: ${{ github.event_name == "push" && "dev" || github.event.inputs.namespace }}
+                namespace: ${{ github.event_name == 'push' && "dev" || github.event.inputs.namespace }}
