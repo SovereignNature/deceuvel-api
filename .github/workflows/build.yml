@@ -38,7 +38,7 @@ jobs:
             - name: Build Docker Image
               run: docker build ${{ github.workspace }} -t ${{ env.FULL_TAG }} --build-arg IMG_TAG_VAR=${{ env.CONTAINER_TAG }}
 
-            - name: Deploy Locally
+            - name: Configure Local Deployment
               run: |
                 touch .env
                 echo "MONGO_INITDB_ROOT_USERNAME=dummy-admin" >> .env
@@ -48,9 +48,12 @@ jobs:
                 echo "APP_PORT=8080" >> .env
                 echo "IMG_TAG=${{ env.FULL_TAG }}" >> .env
                 cat .env
-                docker-compose --build up -d
-                sleep 5
 
+            - name: Deploy Locally
+              run: |
+                docker-compose up --build -d
+                sleep 5
+                
             - name: Heartbeat Test
               run: |
                 export RES=$(curl -s -o /dev/null -I -w "%{http_code}" http://localhost:8080/)
