@@ -104,8 +104,8 @@ jobs:
             #- run: ls ./.github/workflows
               
             - name: Deploy Image to Cluster
-              #uses: ./.github/workflows/deploy.yml
-              uses: SovereignNature/deceuvel-api/.github/workflows/deploy@main
+              uses: ./.github/workflows/deploy.yml
+              #uses: SovereignNature/deceuvel-api/.github/workflows/deploy@main
               with:
                 tag: ${{ env.CONTAINER_TAG }}
                 namespace: ${{ github.event_name == 'push' && 'dev' || github.event.inputs.namespace }}
