@@ -1,6 +1,6 @@
 name: Deploy Image
 on:
-    push:
+    #push:
     workflow_dispatch:
         inputs:
             tag:
@@ -25,7 +25,7 @@ jobs:
                 #echo "CONTAINER_TAG=$CONTAINER_TAG" >> $GITHUB_ENV
                 export REGISTRY=test.compendium.sovereignnature.ch
                 echo "REGISTRY=$REGISTRY" >> $GITHUB_ENV
-                export FULL_TAG=""$REGISTRY/$REP_NAME:$CONTAINER_TAG"
+                export FULL_TAG="$REGISTRY/$REP_NAME:$CONTAINER_TAG"
                 echo "FULL_TAG=$FULL_TAG" >> $GITHUB_ENV
                 echo "Full Tag "$FULL_TAG
 
