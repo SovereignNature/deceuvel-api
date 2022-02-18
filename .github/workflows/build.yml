@@ -46,14 +46,15 @@ jobs:
                 echo "MONGO_INITDB_DATABASE=deceuvel" >> .env
                 echo "MONGO_DATABASE_PORT=27017" >> .env
                 echo "APP_PORT=8080" >> .env
-                echo "IMG_TAG=${{ env.FULL_TAG }}" >> .env
+                echo "IMG_TAG=${{ env.CONTAINER_TAG }}" >> .env
                 cat .env
+                docker tag ${{ env.FULL_TAG }} ${{ env.REP_NAME }}:${{ env.CONTAINER_TAG }}
 
             - name: Deploy Locally
               run: |
                 docker-compose up --build -d
                 sleep 5
-                
+
             - name: Heartbeat Test
               run: |
                 export RES=$(curl -s -o /dev/null -I -w "%{http_code}" http://localhost:8080/)
