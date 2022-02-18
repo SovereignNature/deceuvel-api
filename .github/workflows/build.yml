@@ -54,7 +54,7 @@ jobs:
             - name: Deploy Locally
               run: |
                 docker-compose up --build -d
-                sleep 5
+                sleep 10
 
             - name: Heartbeat Test
               run: |
