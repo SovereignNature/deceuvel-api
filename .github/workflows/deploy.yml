@@ -30,7 +30,7 @@ jobs:
                 echo "Full Tag "$FULL_TAG
 
             - name: Configure Deployment File
-              run: sed -i "s/%CONTAINER_TAG%/${{ env.FULL_TAG }}/g" deployment/deploy-api.yml
+              run: sed -i "s#%CONTAINER_TAG%#${{ env.FULL_TAG }}#g" deployment/deploy-api.yml
 
             - name: Deploy to Cluster
               uses: actions-hub/kubectl@master

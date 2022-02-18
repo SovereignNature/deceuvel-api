@@ -57,12 +57,6 @@ jobs:
 
             - name: Heartbeat Test
               run: |
-                docker ps
-                echo " "
-                docker logs api
-                echo " "
-                curl http://localhost:8080/
-                echo " "
                 export RES=$(curl -s -o /dev/null -I -w "%{http_code}" http://localhost:8080/)
                 echo $RES
                 [[ $RES = "200" ]]
