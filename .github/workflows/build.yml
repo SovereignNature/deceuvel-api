@@ -99,12 +99,13 @@ jobs:
                 echo "Full Tag "$FULL_TAG
 
             - name: Check-out Repository Code
-              uses: actions/checkout@v1
+              uses: actions/checkout@v2
               
-            - run: ls ./.github/workflows
+            #- run: ls ./.github/workflows
               
             - name: Deploy Image to Cluster
-              uses: ./.github/workflows/deploy.yml
+              #uses: ./.github/workflows/deploy.yml
+              uses: SovereignNature/deceuvel-api/.github/workflows/deploy@main
               with:
                 tag: ${{ env.CONTAINER_TAG }}
                 namespace: ${{ github.event_name == 'push' && 'dev' || github.event.inputs.namespace }}
