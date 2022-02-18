@@ -17,7 +17,7 @@ on:
             deploy:
                 description: 'Deploy?'
                 required: false
-                default: "true"
+                default: 'true'
             namespace:
                 description: 'Namespace to deploy'
                 required: false
@@ -80,8 +80,8 @@ jobs:
               run: docker image push ${{ env.FULL_TAG }}
               
             - name: Deploy Image to Cluster
-              if: github.event_name == "push" || (github.event_name == "workflow_dispatch" && github.event.inputs.deploy == "true")
+              if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
               uses: ./.github/workflows/deploy
               with:
                 tag: ${{ env.CONTAINER_TAG }}
-                namespace: ${{ github.event_name == 'push' && "dev" || github.event.inputs.namespace }}
+                namespace: ${{ github.event_name == 'push' && 'dev' || github.event.inputs.namespace }}
