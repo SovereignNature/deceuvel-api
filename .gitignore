@@ -1,3 +1,7 @@
+mongo/db
+.tags
+.tags1
+
 # Logs
 logs
 *.log
