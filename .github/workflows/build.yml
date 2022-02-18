@@ -79,14 +79,31 @@ jobs:
             - name: Upload Image to Registry
               run: docker image push ${{ env.FULL_TAG }}
               
-            - run: ls ./.github/workflows
+    Deploy-Image:
+        runs-on: ubuntu-latest
+        #if: startsWith(github.event.head_commit.message, 'release')
+        #if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true') }}
+        steps:
+            - name: Set ENV Variables
+              run: |
+                export REP_NAME=$(echo ${{github.repository}} | awk '{split($0,a,"/"); print a[2]}')
+                echo "REP_NAME=$REP_NAME" >> $GITHUB_ENV
+                if [[ ${{ github.event_name }} = "workflow_dispatch" ]]; then export CONTAINER_TAG=${{ github.event.inputs.tag }}; else export CONTAINER_TAG=$(echo ${{github.ref}} | sed 's/refs\/tags\///'); fi
+                echo "CONTAINER_TAG=$CONTAINER_TAG" >> $GITHUB_ENV
+                export REGISTRY=test.compendium.sovereignnature.ch
+                echo "REGISTRY=$REGISTRY" >> $GITHUB_ENV
+                export FULL_TAG="$REGISTRY/$REP_NAME:$CONTAINER_TAG"
+                echo "FULL_TAG=$FULL_TAG" >> $GITHUB_ENV
+                echo "Full Tag "$FULL_TAG
+
+            - name: Check-out Repository Code
+              uses: actions/checkout@v2
               
-            - uses: actions/checkout@v1
-              name: Checkout
+            - run: ls ./.github/workflows
               
             - name: Deploy Image to Cluster
               uses: ./.github/workflows/deploy.yml
-              if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
               with:
                 tag: ${{ env.CONTAINER_TAG }}
                 namespace: ${{ github.event_name == 'push' && 'dev' || github.event.inputs.namespace }}
