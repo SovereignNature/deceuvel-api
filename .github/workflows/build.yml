@@ -14,11 +14,6 @@ jobs:
         #if: startsWith(github.event.head_commit.message, 'release')
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         steps:
-            #- run: echo "Triggered by a ${{ github.event_name }} event."
-            #- run: echo "Commit Message ${{ github.event.head_commit }}"
-            #- run: echo "Running on a ${{ runner.os }} server."
-            #- run: echo "Branch is ${{ github.ref }} and the repository is ${{ github.repository }}."
-            #- run: echo "the repository is ${{ github.repository }}"
             - name: Set ENV Variables
               run: |
                 export REP_NAME=$(echo ${{github.repository}} | awk '{split($0,a,"/"); print a[2]}')
@@ -29,51 +24,15 @@ jobs:
                 echo "REGISTRY=$REGISTRY" >> $GITHUB_ENV
                 echo "FULL_TAG=$REGISTRY/$REP_NAME:$CONTAINER_TAG" >> $GITHUB_ENV
 
-            #- name: Test
-            #  run: echo ${{ env.CONTAINER_TAG }}
             - name: Check-out Repository Code
               uses: actions/checkout@v2
-            #- run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+
 
             - name: Build Docker Image
               run: docker build ${{ github.workspace }} -t ${{ env.FULL_TAG }} --build-arg IMG_TAG_VAR=${{ env.CONTAINER_TAG }}
-            #- name: List Docker Images
-            #  run: docker images
 
-#            - name: Save Image (Artifact)
-#              run: |
-#                mkdir -p ./artifacts/deployment
-#                mkdir -p ./artifacts/mongo/docker
-#                cp docker-compose.yml ./artifacts/docker-compose.yml
-#                cp deployment/deploy-api.yml ./artifacts/deployment/deploy-api.yml
-#                cp mongo/docker/mongo-init.sh ./artifacts/mongo/docker/mongo-init.sh
-#                docker save "${{ env.FULL_TAG }}" > ./artifacts/image.tar
-#                echo "${{ env.FULL_TAG }}" > ./artifacts/tag.txt
-#            - uses: actions/upload-artifact@v2
-#              with:
-#                name: docker-artifact
-#                path: ./artifacts
-
-#    Test-Image:
-#        needs: Build-Image
-#        runs-on: ubuntu-latest
-        #if: startsWith(github.event.head_commit.message, 'release')
-#        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-#        steps:
-#           - name: Download Image (Artifact)
-#             uses: actions/download-artifact@v2
-#             with:
-#               name: docker-artifact
-#               path: .
-#
-#           - name: Import Image
-#             run: |
-#                #cd ./artifacts
-#                docker load < docker-image.tar
-#                echo "FULL_TAG=$(cat tag.txt)" >> $GITHUB_ENV
-
-           - name: Deploy Locally
-             run: |
+            - name: Deploy Locally
+              run: |
                 touch .env
                 echo "MONGO_INITDB_ROOT_USERNAME=dummy-admin" >> .env
                 echo "MONGO_INITDB_ROOT_PASSWORD=dummy-password" >> .env
@@ -85,11 +44,11 @@ jobs:
                 docker-compose --build up -d
                 sleep 5
 
-           - name: Heartbeat Test
-             run: |
-               export RES=$(curl -s -o /dev/null -I -w "%{http_code}" http://localhost:8080/)
-               echo $RES
-               [[ $RES = "200" ]]
+            - name: Heartbeat Test
+              run: |
+                export RES=$(curl -s -o /dev/null -I -w "%{http_code}" http://localhost:8080/)
+                echo $RES
+                [[ $RES = "200" ]]
 
             - name: Login to Registry
               uses: docker/login-action@v1

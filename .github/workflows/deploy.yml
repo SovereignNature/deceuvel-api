@@ -13,36 +13,28 @@ on:
                 default: 'dev'
 jobs:
     Deploy-Image:
+        runs-on: ubuntu-latest
+        #if: startsWith(github.event.head_commit.message, 'release')
+        #if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        steps:
+            - name: Set ENV Variables
+              run: |
+                export REP_NAME=$(echo ${{github.repository}} | awk '{split($0,a,"/"); print a[2]}')
+                echo "REP_NAME=$REP_NAME" >> $GITHUB_ENV
+                export CONTAINER_TAG=${{ github.event.inputs.tag }}
+                #echo "CONTAINER_TAG=$CONTAINER_TAG" >> $GITHUB_ENV
+                export REGISTRY=test.compendium.sovereignnature.ch
+                echo "REGISTRY=$REGISTRY" >> $GITHUB_ENV
+                export FULL_TAG=""$REGISTRY/$REP_NAME:$CONTAINER_TAG"
+                echo "FULL_TAG=$FULL_TAG" >> $GITHUB_ENV
+                echo "Full Tag "$FULL_TAG
 
-    runs-on: ubuntu-latest
-    #if: startsWith(github.event.head_commit.message, 'release')
-    #if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    steps:
-        - name: Set ENV Variables
-          run: |
-            export REP_NAME=$(echo ${{github.repository}} | awk '{split($0,a,"/"); print a[2]}')
-            echo "REP_NAME=$REP_NAME" >> $GITHUB_ENV
-            export CONTAINER_TAG=${{ github.event.inputs.tag }}
-            #echo "CONTAINER_TAG=$CONTAINER_TAG" >> $GITHUB_ENV
-            export REGISTRY=test.compendium.sovereignnature.ch
-            echo "REGISTRY=$REGISTRY" >> $GITHUB_ENV
-            echo "FULL_TAG=$REGISTRY/$REP_NAME:$CONTAINER_TAG" >> $GITHUB_ENV
+            - name: Configure Deployment File
+              run: sed -i "s/%CONTAINER_TAG%/${{ env.FULL_TAG }}/g" deployment/deploy-api.yml
 
-        - name: Configure Deployment File
-          run: sed -i "s/%CONTAINER_TAG%/${{ env.FULL_TAG }}/g" deployment/deploy-api.yml
-
-        - name: Deploy to Cluster
-          uses: actions-hub/kubectl@master
-          env:
-            KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-          with:
-            args: apply -f deployment/deploy-api.yml -n ${{ env.REP_NAME }}-${{ github.event.inputs.namespace }}
-
-        # Force restart
-        #- name: Rollout
-        #  uses: actions-hub/kubectl@master
-        #  env:
-        #    KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        #  with:
-        #    args: rollout restart deployment ${{ env.REP_NAME }}-deployment -n ${{ env.REP_NAME }}-dev
-        #- run: echo "This job's status is ${{ job.status }}."
+            - name: Deploy to Cluster
+              uses: actions-hub/kubectl@master
+              env:
+                KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+              with:
+                args: apply -f deployment/deploy-api.yml -n ${{ env.REP_NAME }}-${{ github.event.inputs.namespace }}
