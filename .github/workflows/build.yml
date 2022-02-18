@@ -79,9 +79,11 @@ jobs:
             - name: Upload Image to Registry
               run: docker image push ${{ env.FULL_TAG }}
               
+            - run: ls ./.github/workflows
+              
             - name: Deploy Image to Cluster
               if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
-              uses: ./.github/workflows/deploy.yml
+              uses: ./.github/workflows/deploy@master
               with:
                 tag: ${{ env.CONTAINER_TAG }}
                 namespace: ${{ github.event_name == 'push' && 'dev' || github.event.inputs.namespace }}
