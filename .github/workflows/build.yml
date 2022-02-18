@@ -82,8 +82,8 @@ jobs:
             - run: ls ./.github/workflows
               
             - name: Deploy Image to Cluster
+              uses: ./.github/workflows/deploy.yml
               if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
-              uses: ./.github/workflows/deploy@master
               with:
                 tag: ${{ env.CONTAINER_TAG }}
                 namespace: ${{ github.event_name == 'push' && 'dev' || github.event.inputs.namespace }}
