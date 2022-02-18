@@ -11,9 +11,17 @@ on:
     workflow_dispatch:
         inputs:
             tag:
-                description: 'Image tag to deploy'
+                description: 'Image tag'
                 required: true
                 #default: 'v1.0.0'
+            deploy:
+                description: 'Deploy?'
+                required: false
+                default: "true"
+            namespace:
+                description: 'Namespace to deploy'
+                required: false
+                default: 'dev'
 jobs:
     Build-Image:
         runs-on: ubuntu-latest
@@ -70,3 +78,10 @@ jobs:
 
             - name: Upload Image to Registry
               run: docker image push ${{ env.FULL_TAG }}
+              
+            - name: Deploy Image to Cluster
+              if: github.event_name == "push" || (github.event_name == "workflow_dispatch" && github.event.inputs.deploy == "true")
+              uses: ./.github/workflows/deploy
+              with:
+                tag: ${{ env.CONTAINER_TAG }}
+                namespace: ${{ github.event_name == "push" && "dev" || github.event.inputs.namespace }}
