@@ -11,6 +11,18 @@ on:
                 description: 'Namespace to deploy'
                 required: false
                 default: 'dev'
+    workflow_call:
+        inputs:
+            tag:
+                description: 'Image tag to deploy'
+                required: true
+                type: string
+                #default: 'v1.0.0'
+            namespace:
+                description: 'Namespace to deploy'
+                required: false
+                type: string
+                default: 'dev'
 jobs:
     Deploy-Image:
         runs-on: ubuntu-latest
