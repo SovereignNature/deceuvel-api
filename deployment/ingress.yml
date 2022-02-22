@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: deceuvel-api-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+spec:
+    tls:
+    - hosts:
+      - test.compendium.sovereignnature.ch
+      - test.api.compendium.sovereignnature.ch
+      secretName: helloworld-tls
+    rules:
+      - host: test.api.compendium.sovereignnature.ch
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: deceuvel-api-svc
+                  port:
+                    number: 8080
