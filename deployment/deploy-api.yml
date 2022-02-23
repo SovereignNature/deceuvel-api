@@ -6,7 +6,7 @@ spec:
   type: ClusterIP
   ports:
   - port: 8080
-    targetPort: 80
+    targetPort: http-port
   selector:
     app: deceuvel-api
 ---
@@ -33,7 +33,20 @@ spec:
         image: %CONTAINER_TAG%
         #imagePullPolicy: Never
         ports:
-        - containerPort: 80
+        - name: http-port
+          containerPort: 80
+        startupProbe:
+            httpGet:
+                path: /
+                port: http-port
+            failureThreshold: 30
+            periodSeconds: 10
+        livenessProbe:
+            httpGet:
+                path: /
+                port: http-port
+            failureThreshold: 1
+            periodSeconds: 15
         env:
         - name: APP_PORT
           value: "80"
