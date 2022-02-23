@@ -43,13 +43,20 @@ spec:
             periodSeconds: 10
             #successThreshold: 1
             failureThreshold: 30
-        livenessProbe:
+        readinessProbe:
             httpGet:
                 path: /
                 port: http-port
-            initialDelaySeconds: 15
+            #initialDelaySeconds: 15
             failureThreshold: 1
             periodSeconds: 15
+        #livenessProbe:
+        #    httpGet:
+        #        path: /
+        #        port: http-port
+        #    initialDelaySeconds: 15
+        #    failureThreshold: 1
+        #    periodSeconds: 15
         env:
         - name: APP_PORT
           value: "80"
