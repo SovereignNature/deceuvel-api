@@ -64,7 +64,7 @@ app.get('/', (req, res) => {
 
     var tag = process.env.IMG_TAG;
     if(tag) {
-        html += `</p>${tag}</p>`;
+        html += `<p>${tag}</p>`;
     }
 
     html += "</body></html>\n";
